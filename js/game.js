@@ -703,7 +703,7 @@ function updateEnemies(dt){
     if(e.dotT<=0){
       e.dotT=.25;
       // fire also eats a slice of max health, so it never stops mattering as the horde toughens
-      if(e.burn>0)dealRaw(e,(e.burnD+e.maxhp*(e.r>40?.004:e.r>24?.015:.04))*.25,e.burnS,ELEMENTS.burn.col,true);
+      if(e.burn>0)dealRaw(e,(e.burnD+e.maxhp*(e.r>40?.01:e.r>24?.025:.04))*.25,e.burnS,ELEMENTS.burn.col,true);
       if(e.poison>0)dealRaw(e,e.poison*e.poisonD*.25,e.poisonS,ELEMENTS.poison.col,true);
       if(e.dead)continue;
     }
