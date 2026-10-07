@@ -265,9 +265,11 @@ function render(){
     ctx.fillStyle='#0c0e1a';
     if(e.type==='piggy'){ctx.font='900 22px system-ui';ctx.fillText('$',e.x,e.y+1)}
     else{ctx.fillRect(e.x+ex+px-es/2,e.y+ey+py-es/2,es,es);ctx.fillRect(e.x+ex-px-es/2,e.y+ey-py-es/2,es,es)}
-    if(e.r>18&&e.hp<e.maxhp&&e.r<=40){
-      ctx.fillStyle='#000a';ctx.fillRect(e.x-e.r,e.y-e.r-9,e.r*2,4);
-      ctx.fillStyle='#ff5d73';ctx.fillRect(e.x-e.r,e.y-e.r-9,e.r*2*Math.max(0,e.hp/e.maxhp),4);
+    // every wounded enemy shows its health, so you can see fire and poison working
+    if(e.hp<e.maxhp&&e.r<=40){
+      const bh=e.r>18?4:3,bw=Math.max(e.r,11);
+      ctx.fillStyle='#000a';ctx.fillRect(e.x-bw,e.y-e.r-6-bh,bw*2,bh);
+      ctx.fillStyle='#ff5d73';ctx.fillRect(e.x-bw,e.y-e.r-6-bh,bw*2*Math.max(0,e.hp/e.maxhp),bh);
     }
   }
 

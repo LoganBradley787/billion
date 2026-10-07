@@ -19,8 +19,8 @@ const WEAPONS={
     mods:['fork','overload','conductor','storm'],
     evo:[{name:'Thunderstorm',desc:'Three more strikes every time.'},
          {name:'Tesla Coil',desc:'Constant arcs to the three nearest enemies.'}]},
-  saw:{name:'Sawblade',icon:'🪚',role:'Piercing line',unlock:4e4,desc:'A blade flies out and comes back, cutting everything.',
-    mods:['twin','lodged','arc','serr'],
+  saw:{name:'Sawblade',icon:'🪚',role:'Piercing line',unlock:4e4,desc:'A blade flies out through the nearest enemy and comes back, cutting everything.',
+    mods:['twin','lodged','arc','serr','vortex'],
     evo:[{name:'Buzzkill',desc:'Huge blades, and one more of them.'},
          {name:'Sawstorm',desc:'Blades never return. They bounce around the screen.'}]},
   rocket:{name:'Rockets',icon:'🚀',role:'Homing explosions',unlock:25e4,desc:'Homing rockets that explode.',
@@ -49,42 +49,44 @@ const WEAPONS={
 };
 
 // el: applies a status. not: can't share a weapon with that mod. cost: the downside, shown in red.
+// Every mod also adds MOD_DMG damage to its weapon, so no pick is ever a pure sidegrade.
 const MODS={
-  burn:{name:'Incendiary',icon:'🔥',el:'burn',desc:'Hits ignite. Fire spreads between touching enemies.'},
+  burn:{name:'Incendiary',icon:'🔥',el:'burn',desc:'Hits ignite. Fire eats 4% of max health a second and spreads between touching enemies.'},
   chill:{name:'Frost',icon:'❄️',el:'chill',unlock:2e4,desc:'Hits chill and then freeze. Frozen enemies shatter when killed.'},
   poison:{name:'Venom',icon:'☠️',el:'poison',unlock:2e5,desc:'Hits stack poison. Great against anything tough.'},
   shock:{name:'Voltaic',icon:'🌩️',el:'shock',unlock:2e6,desc:'Shocked enemies arc your next hit to two neighbours.'},
-  siphon:{name:'Siphon',icon:'🩸',desc:'Kills heal 1 HP.',cost:'-15% damage'},
+  siphon:{name:'Siphon',icon:'🩸',desc:'Kills heal 1 HP.'},
   conc:{name:'Concussive',icon:'🥊',desc:'Double knockback.'},
-  heavy:{name:'Heavy',icon:'🏋️',desc:'+70% damage.',cost:'-35% rate',not:'rapid'},
-  rapid:{name:'Rapid',icon:'💨',desc:'+50% rate.',cost:'-25% damage',not:'heavy'},
-  big:{name:'Oversized',icon:'🎈',desc:'+35% size and area.',cost:'-20% damage'},
+  heavy:{name:'Heavy',icon:'🏋️',desc:'+80% damage.',cost:'-20% rate',not:'rapid'},
+  rapid:{name:'Rapid',icon:'💨',desc:'+60% rate.',cost:'-10% damage',not:'heavy'},
+  big:{name:'Oversized',icon:'🎈',desc:'+35% size and area.'},
 
-  split:{name:'Split Shot',icon:'🔱',desc:'+2 projectiles in a fan.',cost:'-25% damage each'},
+  split:{name:'Split Shot',icon:'🔱',desc:'+2 projectiles in a fan.',cost:'-15% damage each'},
   ricochet:{name:'Ricochet',icon:'🎱',desc:'Bullets bounce to two more enemies.'},
   hollow:{name:'Hollow Point',icon:'🎯',desc:'Double damage to enemies above 80% health.'},
 
   ring2:{name:'Second Ring',icon:'⭕',desc:'An outer ring of orbs at half damage.'},
-  bumper:{name:'Bumper',icon:'🎳',desc:'Triple knockback.',cost:'-30% damage'},
+  bumper:{name:'Bumper',icon:'🎳',desc:'Triple knockback.'},
   grinder:{name:'Grinder',icon:'⚙️',desc:'Orbs hit twice as often.',cost:'orbit 25% tighter'},
   mirrororb:{name:'Mirror Orbs',icon:'🪞',desc:'Eaten bullets are fired back.'},
 
   after:{name:'Aftershock',icon:'〰️',desc:'A second, weaker wave follows each one.'},
-  implode:{name:'Implosion',icon:'🌀',desc:'Pulls enemies in instead of pushing them away.'},
-  focus:{name:'Focused',icon:'🔍',desc:'Double damage.',cost:'half the radius'},
+  implode:{name:'Implosion',icon:'🌀',desc:'Pulls enemies in and stuns them for a second. +40% damage.'},
+  focus:{name:'Focused',icon:'🔍',desc:'Double damage.',cost:'-30% radius'},
   flinch:{name:'Flinch',icon:'😖',desc:'Also fires whenever you are hit or a bubble pops.'},
 
   fork:{name:'Fork',icon:'🍴',desc:'Chains hit twice as many enemies and reach further.'},
   overload:{name:'Overload',icon:'💢',desc:'Enemies killed by Zap explode.'},
   conductor:{name:'Conductor',icon:'🧲',desc:'Strikes seek enemies with a status and hit them 50% harder.'},
-  storm:{name:'Storm Rider',icon:'🏃',desc:'+60% rate while moving.',cost:'-40% rate while still'},
+  storm:{name:'Storm Rider',icon:'🏃',desc:'+60% rate while moving.',cost:'-15% rate while still'},
 
   twin:{name:'Twin',icon:'♊',desc:'A second blade is thrown the opposite way.'},
   lodged:{name:'Lodged',icon:'📌',desc:'The blade stops at full range and spins in place for 2 seconds.'},
-  arc:{name:'Wide Arc',icon:'🪃',desc:'The blade curves out in a loop.'},
+  arc:{name:'Wide Arc',icon:'🪃',desc:'Thrown like a boomerang: a wide loop out through the target and back to you. +30% damage.'},
   serr:{name:'Serrated',icon:'🦷',desc:'Blades hit twice as often.'},
+  vortex:{name:'Vortex',icon:'🌪️',desc:'Blades drag nearby enemies into themselves.'},
 
-  bigone:{name:'Big One',icon:'🎆',desc:'One rocket with triple damage and double blast.',cost:'half the rate'},
+  bigone:{name:'Big One',icon:'🎆',desc:'One rocket with triple damage and double blast.',cost:'-40% rate'},
   carpet:{name:'Carpet',icon:'🛬',desc:'Fired where you face. +40% blast radius.',cost:'no homing'},
   seeker:{name:'Seeker',icon:'🦈',desc:'Targets the toughest enemy. +50% to elites and bosses.'},
 
@@ -115,36 +117,36 @@ const ELEMENTS={burn:{name:'Burn',col:'#ff8a3f'},chill:{name:'Chill',col:'#9fe8f
 
 // max: can be taken that many times. req: needs that card first. free: takes no slot.
 const CARDS={
-  sniper:{name:'Sniper',icon:'🔭',gain:'+60% damage at long range',cost:'-40% up close',not:'brawler'},
-  brawler:{name:'Brawler',icon:'👊',gain:'+60% damage up close',cost:'-40% at long range',not:'sniper'},
-  tunnel:{name:'Tunnel Vision',icon:'👁️',unlock:5e4,gain:'+50% damage the way you face',cost:'-50% behind you'},
-  stand:{name:'Stand Your Ground',icon:'🗿',gain:'+40% damage and +30% rate while still',cost:'-20% damage while moving',not:'hitrun'},
-  hitrun:{name:'Hit and Run',icon:'💃',gain:'+40% rate while moving',cost:'-30% rate while still',not:'stand'},
-  boots:{name:'Heavy Boots',icon:'🥾',unlock:5e4,gain:'+80 max HP, enemies hit 30% softer',cost:'-25% move speed'},
-  glass:{name:'Glass Cannon',icon:'🍸',gain:'+70% damage',cost:'half your max health'},
-  berserk:{name:'Berserk',icon:'😡',unlock:5e4,gain:'Up to +100% damage as your health drops',cost:'no regeneration'},
+  sniper:{name:'Sniper',icon:'🔭',gain:'+60% damage at long range',cost:'-15% up close',not:'brawler'},
+  brawler:{name:'Brawler',icon:'👊',gain:'+60% damage up close',cost:'-15% at long range',not:'sniper'},
+  tunnel:{name:'Tunnel Vision',icon:'👁️',unlock:5e4,gain:'+50% damage the way you face',cost:'-20% behind you'},
+  stand:{name:'Stand Your Ground',icon:'🗿',gain:'+40% damage and +30% rate while still',cost:'-10% damage while moving',not:'hitrun'},
+  hitrun:{name:'Hit and Run',icon:'💃',gain:'+40% rate while moving',cost:'-15% rate while still',not:'stand'},
+  boots:{name:'Heavy Boots',icon:'🥾',unlock:5e4,gain:'+80 max HP, enemies hit 30% softer',cost:'-12% move speed'},
+  glass:{name:'Glass Cannon',icon:'🍸',gain:'+70% damage',cost:'-30% max health'},
+  berserk:{name:'Berserk',icon:'😡',unlock:5e4,gain:'Up to +100% damage as your health drops',cost:'half regeneration'},
   vampire:{name:'Vampire',icon:'🦇',gain:'Kills heal you',cost:'hearts heal half'},
-  blood:{name:'Blood Price',icon:'💉',need:2,gain:'+1 option on every pick',cost:'each pick costs 8 HP'},
-  ring:{name:'Ringleader',icon:'🎪',gain:'+30% experience',cost:'+30% more enemies'},
-  mob:{name:'Mob Rule',icon:'👥',unlock:5e5,gain:'+2% damage per enemy nearby, up to +60%',cost:'-30% to bosses'},
-  giant:{name:'Giant Slayer',icon:'🗡️',gain:'Double damage to elites and bosses',cost:'-25% to everything else'},
-  magnetic:{name:'Magnetic',icon:'🧲',unlock:5e5,gain:'Double pickup range',cost:'enemies move 15% faster'},
+  blood:{name:'Blood Price',icon:'💉',need:2,gain:'+1 option on every pick',cost:'each pick costs 5 HP'},
+  ring:{name:'Ringleader',icon:'🎪',gain:'+30% experience',cost:'+20% more enemies'},
+  mob:{name:'Mob Rule',icon:'👥',unlock:5e5,gain:'+2% damage per enemy nearby, up to +60%',cost:'-15% to bosses'},
+  giant:{name:'Giant Slayer',icon:'🗡️',gain:'Double damage to elites and bosses',cost:'-10% to everything else'},
+  magnetic:{name:'Magnetic',icon:'🧲',unlock:5e5,gain:'Double pickup range',cost:'enemies move 8% faster'},
   onetrick:{name:'One-Trick',icon:'🃏',unlock:3e6,gain:'Double damage on your first weapon',cost:'two weapons at most',ok:()=>Object.keys(P.weapons).length<=2},
-  arsenal:{name:'Arsenal',icon:'🧰',unlock:5e5,gain:'+1 weapon slot',cost:'every weapon -15% damage',not:'onetrick'},
-  elemental:{name:'Elementalist',icon:'🧪',unlock:3e6,gain:'Statuses last twice as long',cost:'-25% direct damage'},
-  cold:{name:'Cold Blooded',icon:'🥶',unlock:15e6,gain:'Frozen enemies take double damage',cost:'you move 15% slower'},
-  pyro:{name:'Pyromaniac',icon:'🧯',unlock:15e6,gain:'Fire spreads much further',cost:'you lose 1.5 HP a second near fire'},
+  arsenal:{name:'Arsenal',icon:'🧰',unlock:5e5,gain:'+1 weapon slot',cost:'every weapon -8% damage',not:'onetrick'},
+  elemental:{name:'Elementalist',icon:'🧪',unlock:3e6,gain:'Statuses last twice as long and hit 50% harder',cost:'-15% direct damage'},
+  cold:{name:'Cold Blooded',icon:'🥶',unlock:15e6,gain:'Frozen enemies take double damage',cost:'you move 8% slower'},
+  pyro:{name:'Pyromaniac',icon:'🧯',unlock:15e6,gain:'Fire spreads much further',cost:'you lose 0.75 HP a second near fire'},
   bubble:{name:'Bubble',icon:'🫧',max:3,gain:'Blocks a hit, then recharges. Take again for more charges.'},
   spiked:{name:'Spiked Bubble',icon:'🦔',need:1,req:'bubble',free:true,gain:'A popped bubble explodes',cost:'recharges 50% slower'},
   mirror:{name:'Mirror',icon:'🪩',need:1,req:'bubble',free:true,gain:'A popped bubble fires a ring of shots',cost:'-25 max HP'},
-  greed:{name:'Greed',icon:'🤑',gain:'+40% fun points',cost:'enemies have 20% more health'},
+  greed:{name:'Greed',icon:'🤑',gain:'+50% fun points',cost:'enemies have 12% more health'},
   roller:{name:'High Roller',icon:'🎰',need:2,gain:'Combo multiplier +50%',cost:'any hit resets your combo to zero'},
 };
 
 // small filler picks; these never run out, so a long run always has something to take
 const TRAIN={
-  might:{name:'Damage',icon:'💪',desc:'×1.1 all damage. Stacks multiply.'},
-  haste:{name:'Tempo',icon:'☕',desc:'+8% attack rate.',cap:12},
+  might:{name:'Damage',icon:'💪',desc:'×1.15 all damage. Stacks multiply.'},
+  haste:{name:'Tempo',icon:'☕',desc:'+10% attack rate.',cap:12},
   area:{name:'Reach',icon:'📐',desc:'+10% area.',cap:8},
   vigor:{name:'Health',icon:'❤️',desc:'+25 max HP and heal 40.'},
   speed:{name:'Legs',icon:'👟',desc:'+6% move speed.',cap:6},
@@ -194,4 +196,6 @@ const BOSSES=[
 const FINAL_NAME='THE BILL';
 const MAXR=66,FINAL_AT=720,MAXHEAT=10,GOAL=1e9;
 // tuning knobs: XP curve (scale and exponent), enemy health growth per minute, health and payout per spice level
-const XP_K=.0724,XP_P=3.8,HPG=1.13,SPICE_HP=1.5,SPICE_FP=3;
+const XP_K=.0724,XP_P=3.7,HPG=1.13,SPICE_HP=1.5,SPICE_FP=3;
+// what each rank is worth, and what every installed mod adds on top
+const RANK_DM=[1,1.6,2.4],MOD_DMG=.15;

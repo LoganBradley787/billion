@@ -10,21 +10,21 @@ const cardCount=()=>Object.keys(P.cards).filter(id=>!CARDS[id].free).length;
 function calcWeapon(w){
   const m=w.m,first=Object.keys(P.weapons)[0]===w.id;
   w.s={
-    dm:[1,1.5,2.1][w.rank-1]*Math.pow(1.2,w.over)*(m.heavy?1.7:1)*(m.rapid?.75:1)*(m.big?.8:1)*(m.siphon?.85:1)*(P.cards.onetrick&&first?2:1),
-    rm:(m.heavy?.65:1)*(m.rapid?1.5:1),am:m.big?1.35:1,size:m.big?1.35:1,kb:m.conc?2:1,
+    dm:RANK_DM[w.rank-1]*(1+MOD_DMG*w.mods.length)*Math.pow(1.2,w.over)*(m.heavy?1.8:1)*(m.rapid?.9:1)*(P.cards.onetrick&&first?2:1),
+    rm:(m.heavy?.8:1)*(m.rapid?1.6:1),am:m.big?1.35:1,size:m.big?1.35:1,kb:m.conc?2:1,
     el:m.burn?'burn':m.chill?'chill':m.poison?'poison':m.shock?'shock':null};
 }
 function recalc(){
   const t=id=>P.train[id]||0,c=id=>P.cards[id]||0;
-  P.might=(1+.1*mlv('might')+.06*mlv('over'))*Math.pow(1.1,t('might'))*(c('glass')?1.7:1)*(c('arsenal')?.85:1);
-  P.haste=1+.08*t('haste');
+  P.might=(1+.1*mlv('might')+.06*mlv('over'))*Math.pow(1.15,t('might'))*(c('glass')?1.7:1)*(c('arsenal')?.92:1);
+  P.haste=1+.1*t('haste');
   P.area=1+.1*t('area');
-  P.speed=215*(1+.04*mlv('speed'))*(1+.06*t('speed'))*(c('boots')?.75:1)*(c('cold')?.85:1);
+  P.speed=215*(1+.04*mlv('speed'))*(1+.06*t('speed'))*(c('boots')?.88:1)*(c('cold')?.92:1);
   P.magnet=110*(1+.2*mlv('magnet'))*(c('magnetic')?2:1);
-  P.maxhp=Math.max(20,(100+15*mlv('hp')+25*t('vigor')+(c('boots')?80:0)-(c('mirror')?25:0))*(c('glass')?.5:1));
-  P.regen=c('berserk')?0:.6*t('regen');
+  P.maxhp=Math.max(20,(100+15*mlv('hp')+25*t('vigor')+(c('boots')?80:0)-(c('mirror')?25:0))*(c('glass')?.7:1));
+  P.regen=.6*t('regen')*(c('berserk')?.5:1);
   P.crit=.05+.08*t('crit');
-  P.greed=(1+.15*mlv('greed'))*(c('greed')?1.4:1);
+  P.greed=(1+.15*mlv('greed'))*(c('greed')?1.5:1);
   P.xpMult=(1+.04*mlv('xp'))*(c('ring')?1.3:1);
   P.shieldMax=c('bubble');P.shieldCd=(8-c('bubble'))*(c('spiked')?1.5:1);
   P.wslots=Math.min(c('onetrick')?2:99,4+mlv('wslot')+mlv('wslot2')+(c('arsenal')?1:0));
@@ -95,8 +95,8 @@ function densest(maxd){
 // ---------- spawning ----------
 function spawn(type,x,y){
   const T=ET[type],m=R.t/60,C=P.cards;
-  const hm=(1+m*.4)*Math.pow(HPG,m)*Math.pow(1.2+(SPICE_HP-1.2)*Math.min(1,m/4),R.heat)*Math.pow(4,overtime())*(C.greed?1.2:1);
-  const e={type,x,y,r:T.r,hp:T.hp*hm,spd:T.spd*(1+Math.min(.5,m*.03)+.5*overtime())*(C.magnetic?1.15:1)*rand(.9,1.1),
+  const hm=(1+m*.4)*Math.pow(HPG,m)*Math.pow(1.2+(SPICE_HP-1.2)*Math.min(1,m/4),R.heat)*Math.pow(4,overtime())*(C.greed?1.12:1);
+  const e={type,x,y,r:T.r,hp:T.hp*hm,spd:T.spd*(1+Math.min(.5,m*.03)+.5*overtime())*(C.magnetic?1.08:1)*rand(.9,1.1),
     dmg:T.dmg*(1+m*.15)*Math.pow(1.2,R.heat)*Math.pow(2,overtime()),
     kx:0,ky:0,flash:0,shot:rand(1.5,3),orbT:-9,sawT:-9,dead:false};
   e.maxhp=e.hp;enemies.push(e);return e;
@@ -119,7 +119,7 @@ function rollType(t){
 }
 function director(dt){
   const t=R.t,m=t/60;
-  R.acc+=(1.1+t*.035+m*m*.15)*(P.cards.ring?1.3:1)*dt;
+  R.acc+=(1.1+t*.035+m*m*.15)*(P.cards.ring?1.2:1)*dt;
   const cap=Math.min(340,60+t*1.4)*(P.cards.ring?1.2:1);
   while(R.acc>=1){R.acc-=1;if(enemies.length<cap)spawnAtEdge(rollType(t))}
   if(t>=R.nextSwarm){
@@ -156,15 +156,15 @@ function cardMul(e,w){
   const C=P.cards;let m=1;
   if(C.sniper||C.brawler||C.tunnel){
     const dx=e.x-P.x,dy=e.y-P.y,d=Math.hypot(dx,dy);
-    if(C.sniper)m*=d>300?1.6:d<150?.6:1;
-    if(C.brawler)m*=d<150?1.6:d>300?.6:1;
-    if(C.tunnel){const a=Math.atan2(dy,dx)-P.face,da=Math.abs(Math.atan2(Math.sin(a),Math.cos(a)));m*=da<1?1.5:da>2.1?.5:1}
+    if(C.sniper)m*=d>300?1.6:d<150?.85:1;
+    if(C.brawler)m*=d<180?1.6:d>300?.85:1;
+    if(C.tunnel){const a=Math.atan2(dy,dx)-P.face,da=Math.abs(Math.atan2(Math.sin(a),Math.cos(a)));m*=da<1?1.5:da>2.1?.8:1}
   }
-  if(C.stand)m*=P.still>.5?1.4:.8;
+  if(C.stand)m*=P.still>.5?1.4:.9;
   if(C.berserk)m*=2-P.hp/P.maxhp;
-  if(C.mob)m*=e.r>40?.7:1+Math.min(.6,.02*R.near);
-  if(C.giant)m*=e.r>24?2:.75;
-  if(C.elemental)m*=.75;
+  if(C.mob)m*=e.r>40?.85:1+Math.min(.6,.02*R.near);
+  if(C.giant)m*=e.r>24?2:.9;
+  if(C.elemental)m*=.85;
   if(C.cold&&e.frozen>0)m*=2;
   if(e.weakT>R.t)m*=1.2;
   if(e.markT>R.t&&w&&w.id!=='laser')m*=1.3;
@@ -212,10 +212,10 @@ function arc(e,d,src){
 }
 // burn and chill cancel; burn meeting poison combusts; shock meeting ice shatters
 function applyStatus(e,el,d,w){
-  const boss=e.r>40,k=P.cards.elemental?2:1,pc=w.pc||.5,D=d/pc;   // D: that weapon's damage per second on one target
+  const boss=e.r>40,k=P.cards.elemental?2:1,pc=w.pc||.5,D=d/pc*(k>1?1.5:1);   // D: that weapon's damage per second on one target
   if(el==='burn'){
     if(e.chill>0||e.frozen>0){e.chill=0;e.frozen=0;e.frost=0;return}
-    e.burn=3*k;e.burnD=Math.max(e.burnD||0,D*.35);e.burnS=w.id;
+    e.burn=4*k;e.burnD=Math.max(e.burnD||0,D*.5);e.burnS=w.id;
     if(e.poison>0)combust(e);
   }else if(el==='chill'){
     if(e.burn>0){e.burn=0;e.burnD=0;return}
@@ -230,7 +230,7 @@ function applyStatus(e,el,d,w){
     }
   }else if(el==='poison'){
     e.poison=Math.min(30*(k>1?1.5:1),(e.poison||0)+3*pc);
-    e.poisonD=Math.max(e.poisonD||0,D*.03);e.poisonT=4*k;e.poisonS=w.id;
+    e.poisonD=Math.max(e.poisonD||0,D*.04);e.poisonT=4*k;e.poisonS=w.id;
     if(e.burn>0)combust(e);
   }else if(e.frozen>0)shatter(e,w.id,false);
   else e.shock=3*k;
@@ -341,9 +341,10 @@ function bolt(w,x,y,a,dmg,o){
 }
 function novaBlast(w,k){
   const m=w.m,E=w.evo;
-  const r=130*P.area*w.s.am*(m.focus?.5:1)*(E==='a'?1.5:E==='b'?1.2:1);
-  const dmg=30*w.s.dm*k*(m.focus?2:1)*(E==='a'?1.5:E==='b'?1.3:1);
+  const r=130*P.area*w.s.am*(m.focus?.7:1)*(E==='a'?1.5:E==='b'?1.2:1);
+  const dmg=30*w.s.dm*k*(m.focus?2:1)*(m.implode?1.4:1)*(E==='a'?1.5:E==='b'?1.3:1);
   explode(P.x,P.y,r,dmg,w,m.implode?-240:280,E==='a'?'#ffd23f':'#7fd8ff');
+  if(m.implode)query(P.x,P.y,r+MAXR,e=>{if(e.r<=40&&Math.hypot(e.x-P.x,e.y-P.y)<r+e.r)e.stunT=R.t+1});
   eatBullets(P.x,P.y,r,null);
   if(E==='b'&&k===1)zones.push({kind:'quake',w,x:P.x,y:P.y,r,t:0,dur:3,dmg:dmg*.25,tick:0});
 }
@@ -376,7 +377,7 @@ function updateWeapons(dt){
         w.cd-=dt;if(w.cd>0)break;
         const t=nearest(P.x,P.y,E==='b'?760:540);if(!t){w.cd=.1;break}
         w.cd=cdB/rate;
-        const a=Math.atan2(t.y-P.y,t.x-P.x),dmg=14*dm*(m.split?.75:1)*(E==='a'?.55:E==='b'?7:1);
+        const a=Math.atan2(t.y-P.y,t.x-P.x),dmg=14*dm*(m.split?.85:1)*(E==='a'?.55:E==='b'?7:1);
         for(const off of fan(1+(m.split?2:0),.14))
           bolt(w,P.x,P.y,a+off+(E==='a'?rand(-.07,.07):0),dmg,{pierce:E==='b'?99:w.rank>=3?1:0,bounce:m.ricochet?2:0,hollow:m.hollow,
             sp:E==='b'?1500:640,rail:E==='b',r:(E==='b'?12:5)*S.size});
@@ -386,7 +387,7 @@ function updateWeapons(dt){
         w.a+=dt*2.6*Math.min(2,rate);
         // more area means more orbs, so a wider orbit never opens gaps
         const n=(2+w.rank)*(E==='a'?2:1)+Math.floor((area-1)*4),rad=100*area*(m.grinder?.75:1),cdh=m.grinder?.1:.2;
-        const dmg=22*dm*(m.bumper?.7:1)*(E==='a'?1.4:E==='b'?.6:1);
+        const dmg=22*dm*(E==='a'?1.4:E==='b'?.6:1);
         w.orbR=(12+(E==='a'?4:0))*S.size;
         // seconds between orb passes over the same spot, which is how often one enemy really gets hit
         w.pc=Math.max(cdh,TAU/(2.6*Math.min(2,rate)*n));
@@ -420,7 +421,7 @@ function updateWeapons(dt){
         break;
       }
       case'lightning':{
-        if(m.storm)rate*=P.moving?1.6:.6;
+        if(m.storm)rate*=P.moving?1.6:.85;
         if(E==='b'){
           w.pc=.25/rate;w.cd-=dt;if(w.cd>0)break;
           w.cd=.25/rate;
@@ -457,12 +458,13 @@ function updateWeapons(dt){
         const angs=fan(1+(w.rank>=3)+(E?1:0),.5).map(o=>a0+o);
         if(m.twin)angs.push(a0+Math.PI);
         for(const a of angs)bullets.push({kind:'saw',w,x:P.x,y:P.y,dx:Math.cos(a),dy:Math.sin(a),sp:780,t:0,rot:0,
-          r:18*area*(E==='a'?2:1),dmg:20*dm*(E==='a'?1.6:E==='b'?1.2:1),life:E==='b'?5:m.lodged?3.5:1.5,hcd:m.serr?.14:.28,
-          lodged:m.lodged&&E!=='b',arc:m.arc&&E!=='b',storm:E==='b'});
+          r:18*area*(E==='a'?2:1),dmg:30*dm*(m.arc?1.3:1)*(E==='a'?1.6:E==='b'?1.2:1),life:E==='b'?5:m.lodged?3.5:1.5,hcd:m.serr?.14:.28,
+          lodged:m.lodged&&E!=='b',arc:m.arc&&E!=='b',storm:E==='b',vortex:m.vortex,
+          ox:P.x,oy:P.y,reach:Math.max(240,Math.min(400,t?Math.hypot(t.x-P.x,t.y-P.y):300))});
         break;
       }
       case'rocket':{
-        const nuke=E==='b',cdB=nuke?6:1.7*(m.bigone?2:1);w.pc=cdB/rate;
+        const nuke=E==='b',cdB=nuke?6:1.7*(m.bigone?1.67:1);w.pc=cdB/rate;
         w.cd-=dt;if(w.cd>0)break;
         w.cd=cdB/rate;
         const n=nuke||m.bigone?1:1+(w.rank>=3);
@@ -603,10 +605,20 @@ function updateBullets(dt){
         // out and back along one line; a lodged blade holds at the far end for two seconds
         let tt=b.t;
         if(b.lodged)tt=tt<.75?tt:tt<2.75?.75:tt-2;
-        const s=b.sp*(1-tt/.75);
-        b.x+=b.dx*s*dt;b.y+=b.dy*s*dt;
-        if(b.arc&&tt!==.75){const l=420*Math.sin(tt/1.5*TAU);b.x+=-b.dy*l*dt;b.y+=b.dx*l*dt}
+        if(b.arc){
+          // a boomerang loop: leaves your side, crosses the target at its far point, and comes home to wherever you are now
+          const u=Math.min(1,tt/1.5),th=u*TAU,k=Math.max(0,u*2-1),bx=b.ox+(P.x-b.ox)*k,by=b.oy+(P.y-b.oy)*k;
+          const al=b.reach/2*(1-Math.cos(th)),lt=b.reach*.45*Math.sin(th);
+          b.x=bx+b.dx*al-b.dy*lt;b.y=by+b.dy*al+b.dx*lt;
+        }else{
+          const s=b.sp*(1-tt/.75);
+          b.x+=b.dx*s*dt;b.y+=b.dy*s*dt;
+        }
       }
+      if(b.vortex)query(b.x,b.y,b.r+110+MAXR,e=>{
+        const dx=b.x-e.x,dy=b.y-e.y,d=Math.hypot(dx,dy)||1;
+        if(e.r<=40&&d<b.r+110+e.r){const pull=Math.min(d,(e.r>24?90:260)*dt);e.x+=dx/d*pull;e.y+=dy/d*pull}
+      });
       query(b.x,b.y,b.r+MAXR,e=>{
         const dx=e.x-b.x,dy=e.y-b.y,rr=b.r+e.r;
         if(R.t-e.sawT>b.hcd&&dx*dx+dy*dy<rr*rr){e.sawT=R.t;hit(e,b.dmg,w,b.dx,b.dy,60)}
@@ -690,7 +702,8 @@ function updateEnemies(dt){
     e.dotT=(e.dotT||0)-dt;
     if(e.dotT<=0){
       e.dotT=.25;
-      if(e.burn>0)dealRaw(e,e.burnD*.25,e.burnS,ELEMENTS.burn.col,true);
+      // fire also eats a slice of max health, so it never stops mattering as the horde toughens
+      if(e.burn>0)dealRaw(e,(e.burnD+e.maxhp*(e.r>40?.004:e.r>24?.015:.04))*.25,e.burnS,ELEMENTS.burn.col,true);
       if(e.poison>0)dealRaw(e,e.poison*e.poisonD*.25,e.poisonS,ELEMENTS.poison.col,true);
       if(e.dead)continue;
     }
@@ -703,7 +716,7 @@ function updateEnemies(dt){
       sp=-sp;e.left-=dt;
       if(e.left<=0||d>far){e.dead=true;banner('IT GOT AWAY');continue}
     }
-    if(e.frozen>0)sp=0;
+    if(e.frozen>0||e.stunT>R.t)sp=0;
     else if(e.type==='shooter'){
       if(d<230)sp=-sp*.6;else if(d<290)sp=0;
       e.shot-=dt;
@@ -746,16 +759,16 @@ function updateEnemies(dt){
       const ox=e.x-o.x,oy=e.y-o.y,od=Math.hypot(ox,oy)||1,ov2=e.r+o.r-od;
       if(ov2>0){const push=ov2*(o.r>=e.r?.5:.15)*Math.min(1,dt*12);e.x+=ox/od*push;e.y+=oy/od*push}
       if(ov2>-pad&&o.burn>0&&!(e.burn>0)&&!(e.chill>0)&&!(e.frozen>0)&&o.burnD>.5){
-        e.burn=1.5;e.burnD=o.burnD*.8;e.burnS=o.burnS;
+        e.burn=2.5;e.burnD=o.burnD*.8;e.burnS=o.burnS;
         if(e.poison>0)combust(e);
       }
     });
     if(e.dead)continue;
     if(d>far&&e.type!=='piggy'){const a=rand(0,TAU),dd=edgeDist();e.x=P.x+Math.cos(a)*dd;e.y=P.y+Math.sin(a)*dd}
-    if(e.dmg&&!(e.frozen>0)&&d<e.r+P.r)hurt(e.dmg*(C.boots?.7:1),e.dash>0);
+    if(e.dmg&&!(e.frozen>0)&&!(e.stunT>R.t)&&d<e.r+P.r)hurt(e.dmg*(C.boots?.7:1),e.dash>0);
   }
   R.near=near;
-  if(C.pyro&&hot&&!P.dead)P.hp=Math.max(1,P.hp-1.5*dt);
+  if(C.pyro&&hot&&!P.dead)P.hp=Math.max(1,P.hp-.75*dt);
   compact(enemies,e=>e.dead);
 }
 function updateEBullets(dt){
@@ -814,7 +827,7 @@ function update(dt){
   if(ml>1){mx/=ml;my/=ml}
   P.moving=ml>.05;
   if(P.moving){P.x+=mx*P.speed*dt;P.y+=my*P.speed*dt;P.face=Math.atan2(my,mx);P.still=0}else P.still+=dt;
-  P.rate=P.haste*(C.stand&&P.still>.5?1.3:1)*(C.hitrun?(P.moving?1.4:.7):1);
+  P.rate=P.haste*(C.stand&&P.still>.5?1.3:1)*(C.hitrun?(P.moving?1.4:.85):1);
   P.inv-=dt;
   if(P.regen&&P.hp<P.maxhp)P.hp=Math.min(P.maxhp,P.hp+P.regen*dt);
   if(P.shield<P.shieldMax){P.shT-=dt;if(P.shT<=0){P.shield++;P.shT=P.shieldCd}}
@@ -865,6 +878,9 @@ function genOffer(){
     for(;i<pool.length-1;i++){r-=pool[i].wt;if(r<=0)break}
     out.push(pool.splice(i,1)[0]);
   }
+  // never a hand where every option carries a downside
+  const costly=o=>(o.k==='mod'&&MODS[o.m].cost)||(o.k==='card'&&CARDS[o.id].cost);
+  if(out.length&&out.every(costly)){const i=pool.findIndex(o=>!costly(o));if(i>=0)out[out.length-1]=pool[i]}
   return out;
 }
 function applyPick(o){
@@ -904,7 +920,7 @@ function takePick(i){
     R.banMode=false;renderTray();return;
   }
   applyPick(o);
-  if(P.cards.blood&&!load)P.hp=Math.max(1,P.hp-8);
+  if(P.cards.blood&&!load)P.hp=Math.max(1,P.hp-5);
   R.queue.shift();R.offer=null;
   if(R.queue.length)openOffer();
   if(!R.offer){state='play';renderTray()}
