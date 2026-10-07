@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>BILLION</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<style>
+html,body{margin:0;height:100%;background:#0c0e1a;overflow:hidden;color:#e8ecff;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;user-select:none;-webkit-user-select:none}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#ov{position:fixed;inset:0;display:none;background:rgba(8,9,18,.8);backdrop-filter:blur(3px);overflow:auto;z-index:10}
+#ov.on{display:flex}
+.panel{max-width:880px;width:calc(100% - 32px);padding:20px 0;margin:auto;text-align:center}
+h1{font-size:72px;letter-spacing:8px;margin:0;line-height:1;font-weight:900;
+  background:linear-gradient(90deg,#ffd23f,#ff5d73,#b06cff);-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{font-size:38px;letter-spacing:4px;margin:0 0 18px;color:#ffd23f}
+h3{font-size:13px;letter-spacing:2px;margin:10px 0 6px;color:#8a93c0;text-transform:uppercase}
+.sub{opacity:.7;margin:6px 0 16px}
+.sum{background:#161a2e;border:1px solid #2a3157;border-radius:14px;padding:14px;margin:0 auto 14px;max-width:560px}
+.sum .big{font-size:34px;font-weight:800;color:#ffd23f}
+.sum em{font-style:normal;font-size:14px;background:#ff5d73;color:#fff;border-radius:6px;padding:2px 8px;vertical-align:middle}
+.unl{margin-top:8px;font-weight:800;color:#5de0a0;letter-spacing:1px}
+.bar{position:relative;height:26px;background:#161a2e;border:1px solid #2a3157;border-radius:13px;overflow:hidden;margin:0 auto;max-width:560px}
+.bar .fill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#b06cff,#ff5d73,#ffd23f)}
+.bar .tick{position:absolute;top:0;bottom:0;width:2px;background:#0c0e1a;opacity:.7}
+.bar span{position:relative;line-height:26px;font-size:13px;font-weight:700;text-shadow:0 1px 3px #000}
+.ticks{display:flex;max-width:560px;margin:2px auto 8px;font-size:11px;opacity:.6}
+.ticks i{flex:1;text-align:right;font-style:normal}
+.next{font-size:14px;opacity:.85;margin-bottom:16px}
+.row{display:flex;gap:18px;align-items:center;justify-content:center;margin-bottom:18px;flex-wrap:wrap}
+button{font-family:inherit}
+.go{font-size:22px;font-weight:800;padding:14px 36px;border-radius:12px;border:0;background:#ffd23f;color:#1a1400;cursor:pointer}
+.go:hover{filter:brightness(1.1);transform:translateY(-2px)}
+.go small{font-size:12px;opacity:.6;font-weight:600}
+.ghost{margin-top:18px;font-size:15px;padding:9px 18px;border-radius:10px;border:1px solid #3a4275;background:#161a2e;color:#e8ecff;cursor:pointer}
+.ghost:hover{border-color:#ffd23f}
+.heat{margin:-6px 0 16px;font-size:14px}.heat b{color:#ff5d73;font-size:20px;margin:0 6px}.heat span{opacity:.7;margin-left:8px}
+.ghost.sm{margin:0;padding:3px 10px}
+.bank{font-size:18px}.bank b{color:#ffd23f}
+.shop{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;text-align:left}
+.item{background:#161a2e;border:1px solid #2a3157;border-radius:10px;padding:10px 12px;cursor:pointer}
+.item:hover{border-color:#ffd23f}
+.item.cant{opacity:.45;cursor:default}.item.cant:hover{border-color:#2a3157}
+.item .n{font-weight:700;display:flex;justify-content:space-between}
+.item .d{font-size:12px;opacity:.7;margin:2px 0 4px}
+.item .c{font-size:13px;color:#ffd23f;font-weight:700}
+.item.lock .c{color:#8a93c0}
+.help{font-size:12px;opacity:.6;margin-top:16px;line-height:1.6}
+.help a{cursor:pointer;text-decoration:underline}
+.dmg{margin:10px auto 0;font-size:12px;text-align:left;max-width:460px}
+.dmg div{display:flex;align-items:center;gap:8px;margin:2px 0}
+.dmg span{flex:0 0 150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dmg i{display:block;height:8px;border-radius:4px;background:linear-gradient(90deg,#b06cff,#ff5d73)}
+.dmg u{text-decoration:none;opacity:.7}
+.secret p{font-size:18px;line-height:1.5;max-width:560px;margin:14px auto}
+.secret .gain{color:#5de0a0;font-weight:800}
+.conf{position:fixed;top:-24px;width:10px;height:16px;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+.build{display:grid;grid-template-columns:1fr 1fr;gap:18px;text-align:left;margin-bottom:20px}
+.bw{background:#161a2e;border:1px solid #2a3157;border-radius:10px;padding:8px 10px;margin-bottom:6px;font-size:14px}
+.bw>span{opacity:.6;font-size:12px}
+.chip{display:inline-block;font-size:12px;background:#222849;border-radius:6px;padding:2px 7px;margin:4px 4px 0 0}
+.chip.bad{color:#ff7a8c}.dim{opacity:.5}
+#tray{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);display:none;width:max-content;max-width:calc(100% - 24px);z-index:5;text-align:center}
+#tray.on{display:block}
+#tray.modal{bottom:auto;top:50%;transform:translate(-50%,-50%);max-width:min(940px,calc(100% - 24px))}
+.thead{font-size:13px;margin-bottom:6px;text-shadow:0 1px 4px #000,0 0 8px #000}
+.thead b{color:#ffd23f;font-size:16px;letter-spacing:2px}
+.thead .more{margin-left:10px;color:#5de0a0;font-weight:700}
+.thead .tk{opacity:.75;margin-left:10px}
+.tcards{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.tc{width:215px;text-align:left;background:rgba(22,26,46,.95);border:2px solid #2a3157;border-radius:12px;padding:9px 11px;cursor:pointer;
+  display:grid;grid-template-columns:38px 1fr;gap:1px 8px;align-content:start}
+.tc:hover{border-color:#ffd23f}
+.tc .ic{font-size:28px;grid-row:1/5;align-self:center;text-align:center}
+.tc .nm{font-weight:800;font-size:15px}
+.tc .k{display:inline-block;font-size:11px;background:#2a3157;border-radius:4px;padding:0 5px;margin-right:6px;vertical-align:1px}
+.tc .tg{font-size:10px;font-weight:800;letter-spacing:.5px;color:#5de0a0}
+.tc .ds{font-size:12px;opacity:.9}
+.tc .ct{font-size:12px;color:#ff7a8c;font-weight:700}
+.tc.neww{border-color:#5de0a0}
+.tc.evo{border-color:#ff5d73;box-shadow:0 0 22px #ff5d7366}.tc.evo .tg{color:#ff5d73}
+.tc.cardk{border-color:#6b5cff}.tc.cardk .tg{color:#a79bff}
+.tc.oc .tg{color:#8a93c0}
+.tc.el-burn{border-color:#ff8a3f}.tc.el-burn .tg{color:#ff8a3f}
+.tc.el-chill{border-color:#9fe8ff}.tc.el-chill .tg{color:#9fe8ff}
+.tc.el-poison{border-color:#b6ff5d}.tc.el-poison .tg{color:#b6ff5d}
+.tc.el-shock{border-color:#ffe95d}.tc.el-shock .tg{color:#ffe95d}
+#tray.ban .tc{border-color:#ff5d73;border-style:dashed}
+@media(max-width:700px){.build{grid-template-columns:1fr}.tc{width:150px}h1{font-size:48px}}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="tray"></div>
+<div id="ov"></div>
+<script src="js/data.js"></script>
+<script src="js/core.js"></script>
+<script src="js/game.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>
