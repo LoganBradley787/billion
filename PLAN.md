@@ -2,6 +2,24 @@
 
 Branch: `upgrade-rework`. `main` stays as the playable game until this is ready.
 
+## Status (2026-10-07): built
+
+All four phases are implemented on this branch and playable at `/billion/next/`. The game now lives in
+`index.html` plus `js/data.js` (content), `js/core.js`, `js/game.js` and `js/ui.js`. `tools/sim.js` runs bot
+simulations (`node tools/sim.js runs=4 save=max build=firestorm`).
+
+Where the build differs from the plan below:
+
+- Evolution needs rank 3 and all three mods, not two, so it lands later and after the build is set.
+- Status strength is tied to each weapon's damage per second, so slow and fast weapons get the same value from an element.
+- Shatter deals four times the damage that froze the enemy, not a share of its max health (that scaled without limit).
+- Spice is 1.5 times health per level, not 2. With picks capped, 2 was a wall at level 2.
+- An endless shop upgrade, Overdrive (+6% damage), was added as fuel for the spice ladder.
+- Elite chests give one pick; chests stop in overtime, and knockback and slows fade there, so overtime always ends.
+- Unlocks are by lifetime points and spice clears. Feat-based unlocks were not built.
+- Mirror costs 25 max HP instead of a bubble charge. Pyromaniac costs 1.5 HP a second near fire.
+- Tab-to-slow is in. Holding it only works while picks are waiting.
+
 ## Why
 
 Feedback from the 2026-10-06 play session, in order of weight:

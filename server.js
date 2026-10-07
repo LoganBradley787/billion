@@ -4,7 +4,9 @@
 //   PORT=9000 HOST=0.0.0.0 node server.js
 const http=require('http'),fs=require('fs'),path=require('path');
 const PORT=+process.env.PORT||8377,HOST=process.env.HOST||'127.0.0.1';
-const GAME=path.join(__dirname,'index.html'),SAVE=path.join(__dirname,'save.json');
+const SAVE=path.join(__dirname,'save.json');
+// the only files the game is made of
+const FILES={'/':'index.html','/index.html':'index.html','/js/data.js':'js/data.js','/js/core.js':'js/core.js','/js/game.js':'js/game.js','/js/ui.js':'js/ui.js'};
 
 http.createServer((req,res)=>{
   const url=req.url.split('?')[0];
@@ -24,10 +26,10 @@ http.createServer((req,res)=>{
         fs.rename(SAVE+'.tmp',SAVE,err=>{res.writeHead(err?500:204);res.end()});
       });
     });
-  }else if((url==='/'||url==='/index.html')&&req.method==='GET'){
-    fs.readFile(GAME,(err,data)=>{
+  }else if(FILES[url]&&req.method==='GET'){
+    fs.readFile(path.join(__dirname,FILES[url]),(err,data)=>{
       if(err){res.writeHead(500);return res.end()}
-      res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});
+      res.writeHead(200,{'Content-Type':(url.endsWith('.js')?'text/javascript':'text/html')+'; charset=utf-8','Cache-Control':'no-store'});
       res.end(data);
     });
   }else{res.writeHead(404);res.end()}
