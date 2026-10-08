@@ -393,6 +393,7 @@ function updateWeapons(dt){
         w.pc=Math.max(cdh,TAU/(2.6*Math.min(2,rate)*n));
         w.rings=[{n,rad,dir:1,dmg}];if(m.ring2)w.rings.push({n,rad:rad*1.6,dir:-1,dmg:dmg*.5});
         for(const g of w.rings)for(let i=0;i<g.n;i++){
+          if(g.dir>0&&w.out&&w.out[i])continue;
           const a=w.a*g.dir+i*TAU/g.n,ox=P.x+Math.cos(a)*g.rad,oy=P.y+Math.sin(a)*g.rad;
           query(ox,oy,w.orbR+MAXR,e=>{
             const dx=e.x-ox,dy=e.y-oy,rr=w.orbR+e.r;
@@ -406,9 +407,14 @@ function updateWeapons(dt){
         if(E==='b'){
           w.cd-=dt;
           if(w.cd<=0){
-            const t=randomEnemy(520);if(!t){w.cd=.2;break}
-            w.cd=.5/rate;const a=Math.atan2(t.y-P.y,t.x-P.x);
-            bullets.push({kind:'saw',w,comet:true,x:P.x,y:P.y,dx:Math.cos(a),dy:Math.sin(a),sp:900,t:0,rot:0,r:14*S.size,dmg:44*dm,life:1.5,hcd:.28});
+            // one of the ring's own orbs breaks off for the thickest crowd, bursts there and flies home; at least two always stay
+            w.out=w.out||{};
+            const t=densest(560);let idx=-1,bd=9;
+            if(t){const ta=Math.atan2(t.y-P.y,t.x-P.x);
+              for(let i=0;i<n;i++){if(w.out[i])continue;const da=Math.abs(Math.atan2(Math.sin(w.a+i*TAU/n-ta),Math.cos(w.a+i*TAU/n-ta)));if(da<bd){bd=da;idx=i}}}
+            if(idx<0||Object.keys(w.out).length>n-3){w.cd=.15;break}
+            w.cd=.5/rate;w.out[idx]=true;const oa=w.a+idx*TAU/n;
+            bullets.push({kind:'comet',w,idx,n,rad,x:P.x+Math.cos(oa)*rad,y:P.y+Math.sin(oa)*rad,tx:t.x,ty:t.y,back:false,r:w.orbR*1.15,dmg:44*dm,er:75*area,life:3,hcd:.25});
           }
         }
         break;
@@ -467,10 +473,15 @@ function updateWeapons(dt){
         const nuke=E==='b',cdB=nuke?6:1.4*(m.bigone?1.67:1);w.pc=cdB/rate;
         w.cd-=dt;if(w.cd>0)break;
         w.cd=cdB/rate;
-        const n=nuke||m.bigone?1:1+(w.rank>=3);
-        for(let i=0;i<n;i++)bullets.push({kind:'rocket',w,x:P.x,y:P.y,a:m.carpet?P.face+rand(-.25,.25):rand(0,TAU),sp:m.carpet?420:260,
-          tg:m.seeker?toughest(600):i?randomEnemy(560):densest(560),carpet:m.carpet,r:nuke?12:6,dmg:36*dm*(m.bigone?3:1)*(nuke?7:1),
+        const n=nuke||m.bigone?1:1+(w.rank>=3),tgs=[];
+        // the first rocket takes the thickest knot of enemies close to you, the rest the nearest ones: the stuff about to hurt you
+        for(let i=0;i<n;i++){
+          const tg=m.seeker?toughest(600):(!i&&densest(300))||nearest(P.x,P.y,560,tgs);if(tg)tgs.push(tg);
+          const aim=tg?Math.atan2(tg.y-P.y,tg.x-P.x):P.face;
+          bullets.push({kind:'rocket',w,x:P.x,y:P.y,a:aim+(m.carpet?rand(-.2,.2):rand(-.7,.7)),sp:m.carpet?420:260,
+          tg,carpet:m.carpet,r:nuke?12:6,dmg:36*dm*(m.bigone?3:1)*(nuke?7:1),
           er:85*area*(m.bigone?2:1)*(m.carpet?1.4:1)*(nuke?3.6:1),life:m.carpet?.65:2.6,cluster:E==='a',nuke,big:m.seeker?1.5:0});
+        }
         break;
       }
       case'aura':{
@@ -594,6 +605,22 @@ function updateBullets(dt){
       }
       continue;
     }
+    if(b.kind==='comet'){
+      // out to the crowd, burst, then home to its own slot in the ring
+      const oa=w.a+b.idx*TAU/b.n,gx=b.back?P.x+Math.cos(oa)*b.rad:b.tx,gy=b.back?P.y+Math.sin(oa)*b.rad:b.ty;
+      const dx=gx-b.x,dy=gy-b.y,d=Math.hypot(dx,dy)||1,st=1150*dt;
+      if(d<=st){
+        b.x=gx;b.y=gy;
+        if(b.back)b.life=0;else{b.back=true;explode(b.x,b.y,b.er,b.dmg,w,180,'#9fb4ff')}
+      }else{b.x+=dx/d*st;b.y+=dy/d*st}
+      query(b.x,b.y,b.r+MAXR,e=>{
+        const ex=e.x-b.x,ey=e.y-b.y,rr=b.r+e.r;
+        if(R.t-e.sawT>b.hcd&&ex*ex+ey*ey<rr*rr){e.sawT=R.t;hit(e,b.dmg*.5,w,dx/d,dy/d,120)}
+      });
+      eatBullets(b.x,b.y,b.r+3,w.m.mirrororb?w:null);
+      if(b.life<=0&&w.out)delete w.out[b.idx];
+      continue;
+    }
     if(b.kind==='saw'){
       b.t+=dt;b.rot+=dt*18;
       if(b.storm){
@@ -641,7 +668,7 @@ function updateBullets(dt){
       if(boom){
         b.life=0;explode(b.x,b.y,b.er,b.dmg,w,200,'#ffa040',b.big);
         if(b.nuke){R.flash=.3;R.shake=20}
-        if(b.cluster)for(let i=0;i<4;i++){const a=rand(0,TAU);explode(b.x+Math.cos(a)*b.er*.9,b.y+Math.sin(a)*b.er*.9,b.er*.6,b.dmg*.3,w,120,'#ffd23f')}
+        if(b.cluster){const o=rand(0,TAU);for(let i=0;i<4;i++){const a=o+i*TAU/4;explode(b.x+Math.cos(a)*b.er*.9,b.y+Math.sin(a)*b.er*.9,b.er*.7,b.dmg*.5,w,120,'#ffd23f')}}
       }
       continue;
     }
