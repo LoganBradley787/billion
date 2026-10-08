@@ -25,7 +25,7 @@ const WEAPONS={
          {name:'Sawstorm',desc:'Blades never return. They bounce around the screen.'}]},
   rocket:{name:'Rockets',icon:'🚀',role:'Homing explosions',unlock:25e4,desc:'Homing rockets that explode on whatever is closest to you.',
     mods:['bigone','carpet','seeker'],
-    evo:[{name:'Cluster Bombs',desc:'Every blast throws out four more, each half as strong.'},
+    evo:[{name:'Cluster Bombs',desc:'One more rocket per volley, and every blast throws four more out around it: a rolling barrage.'},
          {name:'Nuke',desc:'One enormous blast every six seconds.'}]},
   aura:{name:'Bad Vibes',icon:'😤',role:'Support aura',unlock:15e5,desc:'Everything near you gets hurt and slowed.',
     mods:['leech','intens','weaken','repel'],
