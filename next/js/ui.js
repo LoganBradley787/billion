@@ -281,12 +281,16 @@ function render(){
 
   for(const b of bullets){
     if(!vis(b))continue;
-    if(b.kind==='saw'){
-      ctx.fillStyle=b.comet?'#9fb4ff':'#dfe6ff';ctx.beginPath();
-      if(b.comet)ctx.arc(b.x,b.y,b.r,0,TAU);
-      else{for(let i=0;i<16;i++){const a=b.rot+i*TAU/16,rr=i%2?b.r*.7:b.r;ctx.lineTo(b.x+Math.cos(a)*rr,b.y+Math.sin(a)*rr)}ctx.closePath()}
+    if(b.kind==='comet'){
+      // the same orb that left the ring, in the ring's colour, with a tail
+      const col=b.w.s.el?ELEMENTS[b.w.s.el].col:'#ffd23f';
+      if(parts.length<400)parts.push({x:b.x,y:b.y,vx:rand(-25,25),vy:rand(-25,25),t:0,life:.28,c:col,s:5});
+      ctx.fillStyle=col;ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,TAU);ctx.fill();
+    }else if(b.kind==='saw'){
+      ctx.fillStyle='#dfe6ff';ctx.beginPath();
+      {for(let i=0;i<16;i++){const a=b.rot+i*TAU/16,rr=i%2?b.r*.7:b.r;ctx.lineTo(b.x+Math.cos(a)*rr,b.y+Math.sin(a)*rr)}ctx.closePath()}
       ctx.fill();
-      if(!b.comet){ctx.fillStyle='#5a6390';ctx.beginPath();ctx.arc(b.x,b.y,b.r*.25,0,TAU);ctx.fill()}
+      ctx.fillStyle='#5a6390';ctx.beginPath();ctx.arc(b.x,b.y,b.r*.25,0,TAU);ctx.fill();
     }else if(b.kind==='rocket'){
       ctx.fillStyle=b.nuke?'#ffffff':'#ffa040';poly(b.x,b.y,b.nuke?16:9,3,b.a);ctx.fill();
     }else if(b.kind==='mine'){
@@ -317,6 +321,7 @@ function render(){
   if(ow&&ow.rings&&!P.dead){
     ctx.fillStyle=ow.s.el?ELEMENTS[ow.s.el].col:ow.evo?'#ffd23f':'#9fb4ff';
     for(const g of ow.rings)for(let i=0;i<g.n;i++){
+      if(g.dir>0&&ow.out&&ow.out[i])continue;
       const a=ow.a*g.dir+i*TAU/g.n;
       ctx.beginPath();ctx.arc(P.x+Math.cos(a)*g.rad,P.y+Math.sin(a)*g.rad,ow.orbR,0,TAU);ctx.fill();
     }
