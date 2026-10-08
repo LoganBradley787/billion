@@ -31,7 +31,8 @@ function run(arg,BUILDS){
   const preset=arg.save||'fresh';
   if(preset!=='fresh'){
     save.life=preset==='max'?2e9:3e6;save.secret=true;save.maxHeat=+arg.maxheat||(preset==='max'?4:0);
-    for(const m of META)if(save.maxHeat>=(m.need||0))save.meta[m.id]=preset==='max'?m.max:Math.min(m.max,m.max>3?4:1);
+    // Overdrive has no real ceiling, so "max" means everything else maxed plus over=N (default 0)
+    for(const m of META)if(save.maxHeat>=(m.need||0))save.meta[m.id]=m.id==='over'?+arg.over||0:preset==='max'?m.max:Math.min(m.max,m.max>3?4:1);
     if(preset==='mid'){save.meta.opt4=0;save.meta.cslot=0;save.meta.wslot=0;save.meta.pickw=1}
   }
   const score=o=>{
