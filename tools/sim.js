@@ -15,7 +15,7 @@ const src=['data','core','game','ui'].map(f=>fs.readFileSync(path.join(__dirname
 // what each scripted build wants, most wanted first; anything else falls back to the smart policy
 const BUILDS={
   firestorm:{w:['saw','nova','hole','blaster'],mods:['burn','implode','carrier','lodged','twin','after','horizon'],cards:['pyro','ring','mob'],evo:{saw:0,nova:1,hole:0}},
-  sniper:{w:['blaster','laser','rocket','hole'],mods:['hollow','heavy','painter','lens','sticky','ricochet','bigone'],cards:['sniper','giant','hitrun'],evo:{blaster:1,laser:1,rocket:1}},
+  sniper:{w:['rocket','blaster','laser','hole'],mods:['hollow','heavy','painter','lens','sticky','ricochet','bigone'],cards:['sniper','giant','hitrun'],evo:{blaster:1,laser:1,rocket:1}},
   fortress:{w:['orbit','aura','nova'],mods:['bumper','ring2','weaken','leech','intens','focus','conc'],cards:['brawler','stand','bubble','boots'],evo:{orbit:0,aura:0,nova:0}},
   cryo:{w:['blaster','nova','lightning'],mods:['chill','conductor','fork','after','split','shock'],cards:['cold','elemental','ring'],evo:{blaster:0,nova:1,lightning:0}},
   plague:{w:['blaster','rocket','aura'],mods:['poison','burn','split','rapid','seeker','intens'],cards:['giant','elemental'],evo:{blaster:0,rocket:0,aura:1}},

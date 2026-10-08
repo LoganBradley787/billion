@@ -464,12 +464,12 @@ function updateWeapons(dt){
         break;
       }
       case'rocket':{
-        const nuke=E==='b',cdB=nuke?6:1.7*(m.bigone?1.67:1);w.pc=cdB/rate;
+        const nuke=E==='b',cdB=nuke?6:1.4*(m.bigone?1.67:1);w.pc=cdB/rate;
         w.cd-=dt;if(w.cd>0)break;
         w.cd=cdB/rate;
         const n=nuke||m.bigone?1:1+(w.rank>=3);
-        for(let i=0;i<n;i++)bullets.push({kind:'rocket',w,x:P.x,y:P.y,a:m.carpet?P.face+rand(-.25,.25):rand(0,TAU),sp:m.carpet?420:140,
-          tg:m.seeker?toughest(600):randomEnemy(560),carpet:m.carpet,r:nuke?12:6,dmg:26*dm*(m.bigone?3:1)*(nuke?9:1),
+        for(let i=0;i<n;i++)bullets.push({kind:'rocket',w,x:P.x,y:P.y,a:m.carpet?P.face+rand(-.25,.25):rand(0,TAU),sp:m.carpet?420:260,
+          tg:m.seeker?toughest(600):i?randomEnemy(560):densest(560),carpet:m.carpet,r:nuke?12:6,dmg:36*dm*(m.bigone?3:1)*(nuke?7:1),
           er:85*area*(m.bigone?2:1)*(m.carpet?1.4:1)*(nuke?3.6:1),life:m.carpet?.65:2.6,cluster:E==='a',nuke,big:m.seeker?1.5:0});
         break;
       }
@@ -641,7 +641,7 @@ function updateBullets(dt){
       if(boom){
         b.life=0;explode(b.x,b.y,b.er,b.dmg,w,200,'#ffa040',b.big);
         if(b.nuke){R.flash=.3;R.shake=20}
-        if(b.cluster)for(let i=0;i<4;i++){const a=rand(0,TAU);explode(b.x+Math.cos(a)*b.er*.9,b.y+Math.sin(a)*b.er*.9,b.er*.6,b.dmg*.4,w,120,'#ffd23f')}
+        if(b.cluster)for(let i=0;i<4;i++){const a=rand(0,TAU);explode(b.x+Math.cos(a)*b.er*.9,b.y+Math.sin(a)*b.er*.9,b.er*.6,b.dmg*.3,w,120,'#ffd23f')}
       }
       continue;
     }
