@@ -82,7 +82,7 @@ function showHub(sum){
         <div class="n"><span>${m.name}</span><span>${l}/${m.max>99?'∞':m.max}</span></div><div class="d">${m.desc}</div>
         <div class="c">${locked?'Clear spice '+(m.need-1):maxed?'MAXED':cash(c)}</div></div>`}).join('')}</div>
     <div class="help">WASD or arrows to move · attacks are automatic · number keys take a pick · Esc pauses and shows your build · M mutes<br>
-      Weapons take three mods and then evolve one of two ways. Cards always cost something. Beat the final boss at ${clock(FINAL_AT)} to clear the run.<br>
+      Weapons take three mods and then evolve one of two ways. Most cards trade something away. Beat the final boss at ${clock(FINAL_AT)} to clear the run.<br>
       <a data-act="pausepick">Pause on level-up: <b>${save.pausePick?'on':'off'}</b></a> · <a data-act="reset">Reset all progress</a></div></div>`;
   ov.className='on';
 }
