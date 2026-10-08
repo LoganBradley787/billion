@@ -479,8 +479,8 @@ function updateWeapons(dt){
           const tg=m.seeker?toughest(600):(!i&&densest(300))||nearest(P.x,P.y,560,tgs);if(tg)tgs.push(tg);
           const aim=tg?Math.atan2(tg.y-P.y,tg.x-P.x):P.face;
           bullets.push({kind:'rocket',w,x:P.x,y:P.y,a:aim+(m.carpet?rand(-.2,.2):rand(-.7,.7)),sp:m.carpet?420:260,
-          tg,carpet:m.carpet,r:nuke?12:6,dmg:36*dm*(m.bigone?3:1)*(nuke?7:1),
-          er:85*area*(m.bigone?2:1)*(m.carpet?1.4:1)*(nuke?3.6:1),life:m.carpet?.65:2.6,cluster:E==='a',nuke,big:m.seeker?1.5:0});
+          tg,carpet:m.carpet,r:nuke?12:6,dmg:36*dm*(m.bigone?(nuke?1.5:3):1)*(nuke?5:1),
+          er:85*area*(m.bigone?(nuke?1.2:2):1)*(m.carpet?1.4:1)*(nuke?3.2:1),life:m.carpet?.65:2.6,cluster:E==='a',nuke,big:m.seeker?1.5:0});
         }
         break;
       }
