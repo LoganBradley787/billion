@@ -473,7 +473,7 @@ function updateWeapons(dt){
         const nuke=E==='b',cdB=nuke?6:1.4*(m.bigone?1.67:1);w.pc=cdB/rate;
         w.cd-=dt;if(w.cd>0)break;
         w.cd=cdB/rate;
-        const n=nuke||m.bigone?1:1+(w.rank>=3),tgs=[];
+        const n=nuke?1:(m.bigone?1:1+(w.rank>=3))+(E==='a'?1:0),tgs=[];
         // the first rocket takes the thickest knot of enemies close to you, the rest the nearest ones: the stuff about to hurt you
         for(let i=0;i<n;i++){
           const tg=m.seeker?toughest(600):(!i&&densest(300))||nearest(P.x,P.y,560,tgs);if(tg)tgs.push(tg);
@@ -668,7 +668,7 @@ function updateBullets(dt){
       if(boom){
         b.life=0;explode(b.x,b.y,b.er,b.dmg,w,200,'#ffa040',b.big);
         if(b.nuke){R.flash=.3;R.shake=20}
-        if(b.cluster){const o=rand(0,TAU);for(let i=0;i<4;i++){const a=o+i*TAU/4;explode(b.x+Math.cos(a)*b.er*.9,b.y+Math.sin(a)*b.er*.9,b.er*.7,b.dmg*.5,w,120,'#ffd23f')}}
+        if(b.cluster){const o=rand(0,TAU);for(let i=0;i<4;i++){const a=o+i*TAU/4;explode(b.x+Math.cos(a)*b.er*1.25,b.y+Math.sin(a)*b.er*1.25,b.er*.75,b.dmg*.4,w,120,'#ffd23f')}}
       }
       continue;
     }
