@@ -87,6 +87,7 @@ node server.js         # http://127.0.0.1:8377, saves to save.json
 | `tools/solo.js` | Benchmarks one weapon at a time against the standard horde |
 | `classic/` | The original single-file version of the game |
 | `PLAN.md` | Design notes for the upgrade system |
+| `reports/` | Review notes: a quality-of-life and UX backlog |
 
 Balance checks:
 

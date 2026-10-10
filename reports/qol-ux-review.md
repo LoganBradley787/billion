@@ -2,6 +2,8 @@
 
 Reviewed at commit `005b755` (main). Read-only: nothing in the repo was changed apart from this file.
 
+> **Status (2026-10-09):** saved as a backlog. Nothing here has been fixed yet, and the findings have not been re-checked against the code since the review, so confirm each line reference before acting on it. The screenshots and scripts under `/tmp/billion-qol/` were not kept.
+
 ## How this was checked
 
 - Read `js/ui.js`, `js/core.js`, `js/data.js`, `index.html` and `js/game.js` in full, plus `README.md` and `PLAN.md`.
